@@ -1,0 +1,76 @@
+version: '3.7'
+networks:
+  redis-network:
+    name: redis-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/24
+services:
+  master:
+    image: redis:latest
+    container_name: redis-sentinel-master
+    restart: always
+    command: redis-server --port 6379 --requirepass 123456 --masterauth 123456 --appendonly yes
+    networks:
+      redis-network:
+        ipv4_address: 172.18.0.101
+    expose:
+      - 6379
+    volumes:
+      - /var/docker/data/redis-sentinel-m:/data
+  slave1:
+    image: redis:latest
+    container_name: redis-sentinel-slave-1
+    restart: always
+    command: redis-server --slaveof 172.18.0.101 6379 --port 6379  --requirepass 123456 --masterauth 123456  --appendonly yes
+    networks:
+      redis-network:
+        ipv4_address: 172.18.0.102
+    expose:
+      - 6379
+    volumes:
+      - /var/docker/data/redis-sentinel-s1:/data
+  slave2:
+    image: redis:latest
+    container_name: redis-sentinel-slave-2
+    restart: always
+    command: redis-server --slaveof 172.18.0.101 6379 --port 6379  --requirepass 123456 --masterauth 123456  --appendonly yes
+    networks:
+      redis-network:
+        ipv4_address: 172.18.0.103
+    expose:
+      - 6379
+    volumes:
+      - /var/docker/data/redis-sentinel-s2:/data
+  sentinel1:
+    image: redis:latest
+    container_name: redis-sentinel-sentinel-1
+    expose:
+      - 26379
+    command: bash -c "cp /usr/local/etc/redis/redis-sentinel.conf /usr/local/etc/redis/redis-sentinel.local.conf && redis-sentinel /usr/local/etc/redis/redis-sentinel.local.conf"
+    networks:
+      - redis-network
+    volumes:
+      - /var/docker/config/redis-sentinel.conf:/usr/local/etc/redis/redis-sentinel.conf
+  sentinel2:
+    image: redis:latest
+    container_name: redis-sentinel-sentinel-2
+    expose:
+      - 26379
+    command: bash -c "cp /usr/local/etc/redis/redis-sentinel.conf /usr/local/etc/redis/redis-sentinel.local.conf && redis-sentinel /usr/local/etc/redis/redis-sentinel.local.conf"
+    networks:
+      - redis-network
+    volumes:
+      - /var/docker/config/redis-sentinel.conf:/usr/local/etc/redis/redis-sentinel.conf
+  sentinel3:
+    image: redis:latest
+    container_name: redis-sentinel-sentinel-3
+    expose:
+      - 26379
+    command: bash -c "cp /usr/local/etc/redis/redis-sentinel.conf /usr/local/etc/redis/redis-sentinel.local.conf && redis-sentinel /usr/local/etc/redis/redis-sentinel.local.conf"
+    networks:
+      - redis-network
+    volumes:
+      - /var/docker/config/redis-sentinel.conf:/usr/local/etc/redis/redis-sentinel.conf

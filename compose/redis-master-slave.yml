@@ -1,0 +1,48 @@
+version: '3.7'
+networks:
+  redis-network:
+    name: redis-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/24
+services:
+  master:
+    image: redis:latest
+    container_name: redis-ms-master
+    restart: always
+    command: redis-server --port 6379 --requirepass 123456  --appendonly yes
+    networks:
+      redis-network:
+        ipv4_address: 172.18.0.51
+    expose:
+      - 6379
+    volumes:
+      - /var/docker/data/redis-ms-m:/data
+  slave1:
+    image: redis:latest
+    container_name: redis-ms-slave-1
+    restart: always
+    command: redis-server --slaveof 172.18.0.51 6379 --port 6379  --requirepass 123456 --masterauth 123456  --appendonly yes
+    networks:
+      redis-network:
+        ipv4_address: 172.18.0.52
+    expose:
+      - 6379
+    volumes:
+      - /var/docker/data/redis-ms-s1:/data
+  slave2:
+    image: redis:latest
+    container_name: redis-ms-slave-2
+    restart: always
+    command: redis-server --slaveof 172.18.0.51 6379 --port 6379  --requirepass 123456 --masterauth 123456  --appendonly yes
+    networks:
+      redis-network:
+        ipv4_address: 172.18.0.53
+    expose:
+      - 6379
+    volumes:
+      - /var/docker/data/redis-ms-s2:/data
+
+      
