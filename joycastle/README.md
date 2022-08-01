@@ -21,16 +21,16 @@
 * 可能的问题：mysql原始得分查询速度优化，保存入redis的速度优化、redis大key性能问题、峰值查询redis计算压力、负载均衡、高可用
 
 #### 模型接口
-init 初始化存储
-add 添加用户分数 id(5000W int32) 分数(1W int16) 得分时间戳(一个月不到300W秒 int32)
-batchAdd 批量添加用户分数
-getByID 根据用户ID获取排名 
+* init 初始化存储
+* add 添加用户分数 id(5000W int32) 分数(1W int16) 得分时间戳(一个月不到300W秒 int32)
+* batchAdd 批量添加用户分数
+* getByID 根据用户ID获取排名 
 
 #### 数据结构
-redis zset key 按月份+分组 R:202208:0
-zset key根据原始分数分为1000个keyzset 
-zset member为用户ID
-zset的score 前4位做为原始积分，最后7位作为到结束时间的秒数
+* redis zset key 按月份+分组 R:202208:0
+* zset key根据原始分数分为1000个keyzset 
+* zset member为用户ID
+* zset的score 前4位做为原始积分，最后7位作为到结束时间的秒数
 
 
 #### 系统设计
