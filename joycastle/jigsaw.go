@@ -19,45 +19,61 @@ type Piece struct {
 }
 
 type Jigsaw struct {
-	Width  int
-	Height int
-	Pieces [][]*Piece
+	width  int
+	height int
+	pieces [][]*Piece
+}
+
+func NewJigsaw(width int, height int) *Jigsaw {
+	j := Jigsaw{
+		width:  width,
+		height: height,
+	}
+	j.pieces = make([][]*Piece, height)
+	for i := 0; i < height; i++ {
+		j.pieces[i] = make([]*Piece, width)
+	}
+	return &j
+}
+
+func (j *Jigsaw) Add(x, y int, piece *Piece) {
+	j.pieces[x][y] = piece
 }
 
 func (j *Jigsaw) Check() bool {
-	if j.Height == 0 || j.Width == 0 {
+	if j.height == 0 || j.width == 0 {
 		return false
 	}
-	if len(j.Pieces) != j.Height {
+	if len(j.pieces) != j.height {
 		return false
 	}
-	for x := 0; x < len(j.Pieces); x++ {
-		if len(j.Pieces[x]) != j.Width {
+	for x := 0; x < len(j.pieces); x++ {
+		if len(j.pieces[x]) != j.width {
 			return false
 		}
-		for y := 0; y < len(j.Pieces[x]); y++ {
-			if j.Pieces[x][y] == nil {
+		for y := 0; y < len(j.pieces[x]); y++ {
+			if j.pieces[x][y] == nil {
 				return false
 			}
 			// 上边缘
-			if x == 0 && j.Pieces[x][y].Top != BorderTypeDirect {
+			if x == 0 && j.pieces[x][y].Top != BorderTypeDirect {
 				return false
 			}
 			// 左边缘
-			if y == 0 && j.Pieces[x][y].Left != BorderTypeDirect {
+			if y == 0 && j.pieces[x][y].Left != BorderTypeDirect {
 				return false
 			}
 			// 右边缘
-			if y == len(j.Pieces[x])-1 && j.Pieces[x][y].Right != BorderTypeDirect {
+			if y == len(j.pieces[x])-1 && j.pieces[x][y].Right != BorderTypeDirect {
 				return false
 			}
 			// 下边缘
-			if x == len(j.Pieces)-1 && j.Pieces[x][y].Bottom != BorderTypeDirect {
+			if x == len(j.pieces)-1 && j.pieces[x][y].Bottom != BorderTypeDirect {
 				return false
 			}
 			// 内部相邻
-			if x < len(j.Pieces)-1 && y < len(j.Pieces[x])-1 &&
-				(!j.checkPieces(j.Pieces[x][y].Right, j.Pieces[x][y+1].Left) || !j.checkPieces(j.Pieces[x][y].Bottom, j.Pieces[x+1][y].Top)) {
+			if x < len(j.pieces)-1 && y < len(j.pieces[x])-1 &&
+				(!j.checkPieces(j.pieces[x][y].Right, j.pieces[x][y+1].Left) || !j.checkPieces(j.pieces[x][y].Bottom, j.pieces[x+1][y].Top)) {
 				return false
 			}
 		}
@@ -70,44 +86,35 @@ func (j Jigsaw) checkPieces(borderType BorderType, borderType2 BorderType) bool 
 }
 
 func main() {
-	j := Jigsaw{
-		Width:  2,
-		Height: 2,
-		Pieces: [][]*Piece{
-			{
-				&Piece{
-					ID:     1,
-					Left:   BorderTypeDirect,
-					Top:    BorderTypeDirect,
-					Right:  BorderTypeBulge,
-					Bottom: BorderTypeBulge,
-				},
-				&Piece{
-					ID:     2,
-					Left:   BorderTypeIndent,
-					Top:    BorderTypeDirect,
-					Right:  BorderTypeDirect,
-					Bottom: BorderTypeIndent,
-				},
-			},
-			{
-				&Piece{
-					ID:     3,
-					Left:   BorderTypeDirect,
-					Top:    BorderTypeIndent,
-					Right:  BorderTypeBulge,
-					Bottom: BorderTypeDirect,
-				},
-				&Piece{
-					ID:     4,
-					Left:   BorderTypeIndent,
-					Top:    BorderTypeBulge,
-					Right:  BorderTypeDirect,
-					Bottom: BorderTypeDirect,
-				},
-			},
-		},
-	}
+	j := NewJigsaw(2, 2)
+	j.Add(0, 0, &Piece{
+		ID:     1,
+		Left:   BorderTypeDirect,
+		Top:    BorderTypeDirect,
+		Right:  BorderTypeBulge,
+		Bottom: BorderTypeBulge,
+	})
+	j.Add(0, 1, &Piece{
+		ID:     2,
+		Left:   BorderTypeIndent,
+		Top:    BorderTypeDirect,
+		Right:  BorderTypeDirect,
+		Bottom: BorderTypeIndent,
+	})
+	j.Add(1, 0, &Piece{
+		ID:     3,
+		Left:   BorderTypeDirect,
+		Top:    BorderTypeIndent,
+		Right:  BorderTypeBulge,
+		Bottom: BorderTypeDirect,
+	})
+	j.Add(1, 1, &Piece{
+		ID:     4,
+		Left:   BorderTypeIndent,
+		Top:    BorderTypeBulge,
+		Right:  BorderTypeDirect,
+		Bottom: BorderTypeDirect,
+	})
 
 	r := j.Check()
 	fmt.Println(r)
